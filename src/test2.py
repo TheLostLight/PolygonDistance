@@ -46,4 +46,4 @@ print("Direction Vector: " + str(MyGeometry.getDirectionVector(center, icenter))
 
 sunny_side = MyCollision.getSunnySideOf(new_polygon, new_line)
 
-print("Sunny side solution of new_polygon: (distance, index, (vertex), (search_order))\n" + str(MyCollision.sunnySearchSolution(sunny_side, new_line)))
+print("Sunny side solution of new_polygon: ([sunny_side], distance, index, (vertex), (search_order))\n" + str(MyCollision.sunnySearchSolution(sunny_side, new_line)))

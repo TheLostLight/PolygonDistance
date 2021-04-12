@@ -21,11 +21,13 @@ def getSunnySideOf(polygon, line):
     full_set = polygon.getVertices()
     end = len(full_set)
     i = 0
+    flag = 0
     sunny_side = list()
 
     # Loop through the vertices, find the starting and
     # ending point of desired quadrant
-    while True:
+    while flag < len(full_set)*2: # Random condition to avoid infinite loops...
+
         if comparators[0](full_set[i][axis], full_set[(i+1)%end][axis]):
             if comparators[1](full_set[(i-1)%end][axis], full_set[i][axis]):
                 while comparators[0](full_set[i][axis], full_set[(i+1)%end][axis]):
@@ -35,10 +37,15 @@ def getSunnySideOf(polygon, line):
                 return sunny_side
             else:
                 i -= 1
+                flag += 1
 
         else:
             i = (i+1)%end
+            flag += 1
 
+    return None # Search failed somehow (possibly concave polygon)
+
+# Returns set of functions for looking for local maxima
 def getComparators(isYaxis, isPositive):
     if isYaxis:
         if isPositive:
@@ -66,22 +73,20 @@ def sunnySearchSolution(sunny_side, line):
         if partition == left: # length < 3, only two or less options to choose from
             
             if partition == right: # length of 1, must be smallest
-                return (mid_dist, partition, sunny_side[partition], search_list)
+                return (sunny_side, mid_dist, partition, sunny_side[partition], search_list)
 
             else: # length of 2, compare left to right
                 next_vertex = sunny_side[right]
                 next_dist = MyGeometry.pointLineDistance(next_vertex, line)
-                search_list.append(next_vertex)
 
                 if mid_dist <= next_dist: # left is smallest
-                    return (mid_dist, partition, sunny_side[partition], search_list)
+                    return (sunny_side, mid_dist, partition, sunny_side[partition], search_list)
 
                 else: # right is smallest
-                    return (next_dist, right, next_vertex, search_list)
+                    return (sunny_side, next_dist, right, next_vertex, search_list)
 
         else: # length > 2, check middle left and right
             next_vertex = sunny_side[(partition-1)%end]
-            search_list.append(next_vertex)
             next_dist = MyGeometry.pointLineDistance(next_vertex, line)
 
             if(next_dist < mid_dist): # left is shorter, disregard everything on the right
@@ -93,7 +98,6 @@ def sunnySearchSolution(sunny_side, line):
             else:
                 next_vertex = sunny_side[partition+1]
                 next_dist   = MyGeometry.pointLineDistance(next_vertex, line)
-                search_list.append(next_vertex)
 
                 if next_dist < mid_dist: # right is shorter, disregard everything on the left
                     left = partition+1
@@ -103,9 +107,10 @@ def sunnySearchSolution(sunny_side, line):
                     search_list.append(next_vertex)
 
                 else: # The middle is the shortest length. 
-                    return (mid_dist, partition, sunny_side[partition], search_list)
+                    return (sunny_side, mid_dist, partition, sunny_side[partition], search_list)
 
-
+def findSunnyDistance(polygon, line):
+    return sunnySearchSolution(getSunnySideOf(polygon, line), line)
 
 # Checks every vertex and takes the shortest distance to the line
 # For benchmark purposes  
